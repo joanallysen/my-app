@@ -36,6 +36,14 @@ const itemsList = document.getElementById('items-list');
 const refreshBtn = document.getElementById('refresh-btn');
 const dbStatus = document.getElementById('db-status');
 
+// More than 1
+
+
+async function removeItem(id){
+  await window.electronAPI.removeItem(id);
+}
+
+
 // Function to fetch and display items
 async function loadItems() {
   try {
@@ -54,9 +62,10 @@ async function loadItems() {
     }
     
     const items = response.items;
+    console.log(items);
     
     // Display items or a message if empty
-    if (items.length === 0) {
+    if (items.size === 0) {
       itemsList.innerHTML = '<li class="no-items">No items found. Add some!</li>';
     } else {
       items.forEach(item => {
@@ -81,7 +90,16 @@ async function loadItems() {
           date.textContent = new Date(item.createdAt).toLocaleString();
           li.appendChild(date);
         }
-        
+
+        const button = document.createElement('button');
+        button.className = 'remove-btn';
+        button.addEventListener('click', async(e)=>{
+          console.log("Removing item with id:", item._id);  // Use the 'id' here
+          await removeItem(item._id);
+          await loadItems();
+        });
+
+        li.appendChild(button);
         itemsList.appendChild(li);
       });
     }
@@ -147,6 +165,18 @@ itemForm.addEventListener('submit', async (e) => {
 
 // Event: Refresh button
 refreshBtn.addEventListener('click', loadItems);
+
+// Dark mode handler
+const toggleButton = document.getElementById('toggleDarkMode');
+const resetButton = document.getElementById('resetToSystem');
+
+toggleButton.addEventListener('click', async(e) =>{
+  await window.darkMode.toggle();
+})
+
+resetButton.addEventListener('click', async(e) =>{
+  await window.darkMode.system();
+})
 
 // Load items when page loads
 document.addEventListener('DOMContentLoaded', loadItems);

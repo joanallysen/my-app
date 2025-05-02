@@ -9,5 +9,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   addItem: async (item) => {
     const result = await ipcRenderer.invoke('add-item', item);
     return result;
+  },
+  removeItem: async(id) =>{
+    const result = await ipcRenderer.invoke('remove-item', id);
+    return result;
   }
 });
+
+contextBridge.exposeInMainWorld('darkMode',{
+  toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
+  system: () => ipcRenderer.invoke('dark-mode:system')
+})

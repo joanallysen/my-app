@@ -1,7 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeTheme, Menu } = require('electron');
 const path = require('path');
 const dotenv = require('dotenv');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +24,25 @@ async function connectToMongoDB() {
   }
 }
 
+
+const menuTemplate = [
+  {
+    label: 'File',
+    submenu:[
+      {
+        label: 'Toggle Dark Mode',
+        click() {
+          if (nativeTheme.shouldUseDarkColors){
+            nativeTheme.themeSource= 'light';
+          } else{
+            nativeTheme.themeSource = 'dark';
+          }
+        }
+      }
+    ]
+  }
+]
+
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -38,14 +57,13 @@ const createWindow = () => {
   // Load the app - Vite dev server or built files
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
-  
-  // Open DevTools in development mode
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.webContents.openDevTools();
-  }
+
+  const menu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(menu);
   
   // Connect to MongoDB when the app starts
   connectToMongoDB();
@@ -72,6 +90,20 @@ app.on('window-all-closed', () => {
   }
 });
 
+// IPC Handlers for dark and light mode
+ipcMain.handle('dark-mode:toggle', ()=>{
+  if (nativeTheme.shouldUseDarkColors){
+    nativeTheme.themeSource= 'light';
+  } else{
+    nativeTheme.themeSource = 'dark';
+  }
+  return nativeTheme.shouldUseDarkColors;
+})
+
+ipcMain.handle('dark-mode:system', ()=>{
+  nativeTheme.themeSource = 'system'
+})
+
 // IPC Handlers for database operations
 ipcMain.handle('get-items', async () => {
   try {
@@ -82,7 +114,17 @@ ipcMain.handle('get-items', async () => {
 
     const collection = db.collection('items');
     const items = await collection.find({}).toArray();
-    return { success: true, items };
+
+    const itemsWithStringIds = items.map(item => ({
+      ...item,
+      _id: item._id.toHexString()  // <-- This ensures you send a string
+    }));
+
+    itemsWithStringIds.forEach(item => {
+      console.log(item._id);  // Accessing the _id as a string
+    });
+
+    return { success: true, items: itemsWithStringIds};
   } catch (error) {
     console.error('Error fetching items:', error);
     return { success: false, items: [], error: error.message };
@@ -104,3 +146,20 @@ ipcMain.handle('add-item', async (event, item) => {
     return { success: false, error: error.message };
   }
 });
+
+ipcMain.handle('remove-item', async(event, id) =>{
+  try {
+    if (!db) {
+      const connected = await connectToMongoDB();
+      if (!connected) return { success: false, error: 'Failed to connect to database' };
+    }
+    const collection = db.collection('items');
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+    return { success: true, message: 'Item successfully deleted' };
+  } catch (error) {
+    console.error('Error removing item:', error);
+    return { success: false, error: error.message };
+  }
+})
+
