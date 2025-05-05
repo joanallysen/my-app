@@ -21,6 +21,9 @@
  *    height: 600,
  *    webPreferences: {
  *      nodeIntegration: true
+
+ 
+ 
  *    }
  *  });
  * ```
@@ -164,19 +167,12 @@ itemForm.addEventListener('submit', async (e) => {
 });
 
 // Event: Refresh button
-refreshBtn.addEventListener('click', loadItems);
+// refreshBtn.addEventListener('click', loadItems);
 
-// Dark mode handler
-const toggleButton = document.getElementById('toggleDarkMode');
-const resetButton = document.getElementById('resetToSystem');
+// // Dark mode handler
+// const toggleButton = document.getElementById('toggleDarkMode');
+// const resetButton = document.getElementById('resetToSystem');
 
-toggleButton.addEventListener('click', async(e) =>{
-  await window.darkMode.toggle();
-})
-
-resetButton.addEventListener('click', async(e) =>{
-  await window.darkMode.system();
-})
 
 // Load items when page loads
 document.addEventListener('DOMContentLoaded', loadItems);

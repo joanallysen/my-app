@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #d0d6d6;
+  --primary-color: #272a32;
   --secondary-color: #041421;
   --third-color: #4c7273;
   --font-color: white;
@@ -10,7 +10,7 @@
   
   color-scheme: light dark;
 }
-@media (prefers-color-scheme: dark){
+/* @media (prefers-color-scheme: dark){
   :root{
     --primary-color: #272a32;
   }
@@ -21,7 +21,7 @@
     --primary-color: #ecf0f1;
     --font-color: #121419;
   }
-}
+} */
 
 *{
   margin: 0;

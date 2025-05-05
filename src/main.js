@@ -25,23 +25,23 @@ async function connectToMongoDB() {
 }
 
 
-const menuTemplate = [
-  {
-    label: 'File',
-    submenu:[
-      {
-        label: 'Toggle Dark Mode',
-        click() {
-          if (nativeTheme.shouldUseDarkColors){
-            nativeTheme.themeSource= 'light';
-          } else{
-            nativeTheme.themeSource = 'dark';
-          }
-        }
-      }
-    ]
-  }
-]
+// const menuTemplate = [
+//   {
+//     label: 'File',
+//     submenu:[
+//       {
+//         label: 'Toggle Dark Mode',
+//         click() {
+//           if (nativeTheme.shouldUseDarkColors){
+//             nativeTheme.themeSource= 'light';
+//           } else{
+//             nativeTheme.themeSource = 'dark';
+//           }
+//         }
+//       }
+//     ]
+//   }
+// ]
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -62,10 +62,11 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  const menu = Menu.buildFromTemplate(menuTemplate);
-  Menu.setApplicationMenu(menu);
+  // const menu = Menu.buildFromTemplate(menuTemplate);
+  // Menu.setApplicationMenu(menu);
   
   // Connect to MongoDB when the app starts
+  
   connectToMongoDB();
 };
 
@@ -91,18 +92,18 @@ app.on('window-all-closed', () => {
 });
 
 // IPC Handlers for dark and light mode
-ipcMain.handle('dark-mode:toggle', ()=>{
-  if (nativeTheme.shouldUseDarkColors){
-    nativeTheme.themeSource= 'light';
-  } else{
-    nativeTheme.themeSource = 'dark';
-  }
-  return nativeTheme.shouldUseDarkColors;
-})
+// ipcMain.handle('dark-mode:toggle', ()=>{
+//   if (nativeTheme.shouldUseDarkColors){
+//     nativeTheme.themeSource= 'light';
+//   } else{
+//     nativeTheme.themeSource = 'dark';
+//   }
+//   return nativeTheme.shouldUseDarkColors;
+// })
 
-ipcMain.handle('dark-mode:system', ()=>{
-  nativeTheme.themeSource = 'system'
-})
+// ipcMain.handle('dark-mode:system', ()=>{
+//   nativeTheme.themeSource = 'system'
+// })
 
 // IPC Handlers for database operations
 ipcMain.handle('get-items', async () => {
