@@ -46,7 +46,6 @@ async function removeItem(id){
   await window.electronAPI.removeItem(id);
 }
 
-
 // Function to fetch and display items
 async function loadItems() {
   try {
@@ -166,13 +165,8 @@ itemForm.addEventListener('submit', async (e) => {
   }
 });
 
-// Event: Refresh button
-// refreshBtn.addEventListener('click', loadItems);
+refreshBtn.addEventListener('click', async () => {
+  await loadItems();
+});
 
-// // Dark mode handler
-// const toggleButton = document.getElementById('toggleDarkMode');
-// const resetButton = document.getElementById('resetToSystem');
-
-
-// Load items when page loads
 document.addEventListener('DOMContentLoaded', loadItems);

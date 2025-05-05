@@ -1,3 +1,4 @@
+// Get all required modules
 const { app, BrowserWindow, ipcMain, nativeTheme, Menu } = require('electron');
 const path = require('path');
 const dotenv = require('dotenv');
@@ -24,25 +25,6 @@ async function connectToMongoDB() {
   }
 }
 
-
-// const menuTemplate = [
-//   {
-//     label: 'File',
-//     submenu:[
-//       {
-//         label: 'Toggle Dark Mode',
-//         click() {
-//           if (nativeTheme.shouldUseDarkColors){
-//             nativeTheme.themeSource= 'light';
-//           } else{
-//             nativeTheme.themeSource = 'dark';
-//           }
-//         }
-//       }
-//     ]
-//   }
-// ]
-
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -61,12 +43,10 @@ const createWindow = () => {
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
-
-  // const menu = Menu.buildFromTemplate(menuTemplate);
   // Menu.setApplicationMenu(menu);
   
   // Connect to MongoDB when the app starts
-  
+
   connectToMongoDB();
 };
 
@@ -91,19 +71,6 @@ app.on('window-all-closed', () => {
   }
 });
 
-// IPC Handlers for dark and light mode
-// ipcMain.handle('dark-mode:toggle', ()=>{
-//   if (nativeTheme.shouldUseDarkColors){
-//     nativeTheme.themeSource= 'light';
-//   } else{
-//     nativeTheme.themeSource = 'dark';
-//   }
-//   return nativeTheme.shouldUseDarkColors;
-// })
-
-// ipcMain.handle('dark-mode:system', ()=>{
-//   nativeTheme.themeSource = 'system'
-// })
 
 // IPC Handlers for database operations
 ipcMain.handle('get-items', async () => {
@@ -116,13 +83,14 @@ ipcMain.handle('get-items', async () => {
     const collection = db.collection('items');
     const items = await collection.find({}).toArray();
 
+    // Convert ObjectId to string for easier handling in the renderer process
     const itemsWithStringIds = items.map(item => ({
       ...item,
-      _id: item._id.toHexString()  // <-- This ensures you send a string
+      _id: item._id.toHexString()  
     }));
 
     itemsWithStringIds.forEach(item => {
-      console.log(item._id);  // Accessing the _id as a string
+      console.log(item._id);  
     });
 
     return { success: true, items: itemsWithStringIds};
@@ -132,9 +100,10 @@ ipcMain.handle('get-items', async () => {
   }
 });
 
-ipcMain.handle('add-item', async (event, item) => {
+ipcMain.handle('add-item', async (item) => {
   try {
     if (!db) {
+      console.log('hello world');
       const connected = await connectToMongoDB();
       if (!connected) return { success: false, error: 'Failed to connect to database' };
     }
@@ -148,14 +117,14 @@ ipcMain.handle('add-item', async (event, item) => {
   }
 });
 
-ipcMain.handle('remove-item', async(event, id) =>{
+ipcMain.handle('remove-item', async(id) =>{
   try {
     if (!db) {
       const connected = await connectToMongoDB();
       if (!connected) return { success: false, error: 'Failed to connect to database' };
     }
     const collection = db.collection('items');
-    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    await collection.deleteOne({ _id: new ObjectId(id) });
 
     return { success: true, message: 'Item successfully deleted' };
   } catch (error) {
