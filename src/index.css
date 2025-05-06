@@ -1,27 +1,11 @@
 :root {
   --primary-color: #272a32;
-  --secondary-color: #041421;
-  --third-color: #4c7273;
   --font-color: white;
 
   --success-color: #2ecc71;
   --error-color: #e74c3c;
-  --warning-color: #f39c12;
-  
-  color-scheme: light dark;
+  --loading-color: #f39c12;
 }
-/* @media (prefers-color-scheme: dark){
-  :root{
-    --primary-color: #272a32;
-  }
-}
-
-@media (prefers-color-scheme: light){
-  :root{
-    --primary-color: #ecf0f1;
-    --font-color: #121419;
-  }
-} */
 
 *{
   margin: 0;
@@ -73,17 +57,17 @@ h2 {
 
 #db-status.connected {
   background-color: #d4edda;
-  color: #155724;
+  color: var(--success-color);
 }
 
 #db-status.error {
   background-color: #f8d7da;
-  color: #721c24;
+  color: var(--error-color);
 }
 
 #db-status.loading {
   background-color: #fff3cd;
-  color: #856404;
+  color: var(--loading-color);
 }
 
 /* Form styling */
