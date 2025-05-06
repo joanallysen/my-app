@@ -100,7 +100,7 @@ ipcMain.handle('get-items', async () => {
   }
 });
 
-ipcMain.handle('add-item', async (item) => {
+ipcMain.handle('add-item', async (event, item) => {
   try {
     if (!db) {
       console.log('hello world');
@@ -117,7 +117,7 @@ ipcMain.handle('add-item', async (item) => {
   }
 });
 
-ipcMain.handle('remove-item', async(id) =>{
+ipcMain.handle('remove-item', async(event, id) =>{
   try {
     if (!db) {
       const connected = await connectToMongoDB();
