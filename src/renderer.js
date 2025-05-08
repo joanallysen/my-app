@@ -39,8 +39,83 @@ const itemsList = document.getElementById('items-list');
 const refreshBtn = document.getElementById('refresh-btn');
 const dbStatus = document.getElementById('db-status');
 
+function editContent(element){
+  element.contentEditable = true;
+  element.focus();
+  element.style.outline = 'none';
+}
+
+async function saveContent(element, id){
+  element.contentEditable = false;
+  await window.electronAPI.updateItem(id, 'name', element.textContent.trim());
+}
+
+
+
 // More than 1
 
+function loadItemDOM(item){
+  const li = document.createElement('li');
+  li.className = 'item';
+  
+  const checkBox = document.createElement('input');
+  checkBox.type = 'checkbox';
+  checkBox.id = 'toggle';
+  if (item.completed === true){checkBox.checked = true; li.classList.add('completed');}
+  
+  checkBox.addEventListener('change', async(e) =>{
+    if (checkBox.checked){
+      await window.electronAPI.updateItem(item._id, 'completed', true);
+      li.classList.add('completed');
+      console.log("On!");
+    } else {
+      await window.electronAPI.updateItem(item._id, 'completed', false);
+      li.classList.remove('completed')
+      console.log("Not on!");
+    }
+  })
+
+  li.appendChild(checkBox);
+
+
+  const title = document.createElement('div');
+  title.className = 'item-title';
+  title.textContent = item.name;
+  title.ondblclick = () => editContent(title);
+  title.onblur = () => saveContent(title, item._id);
+  title.contentEditable = false;
+  li.appendChild(title);
+  
+  if (item.description) {
+    const desc = document.createElement('div');
+    desc.className = 'item-desc';
+    desc.textContent = item.description;
+    li.appendChild(desc);
+  }
+  
+  if (item.createdAt) {
+    const date = document.createElement('div');
+    date.className = 'item-date';
+    date.textContent = new Date(item.createdAt).toLocaleString();
+    li.appendChild(date);
+  }
+
+  const button = document.createElement('button');
+  button.className = 'remove-btn';
+  button.addEventListener('click', async(e)=>{
+    console.log("Removing item with id:", item._id);  // Use the 'id' here
+    await removeItem(item._id);
+    await loadItems();
+  });
+  li.appendChild(button);
+
+
+      
+
+
+      
+      itemsList.appendChild(li);
+}
 
 async function removeItem(id){
   await window.electronAPI.removeItem(id);
@@ -71,38 +146,16 @@ async function loadItems() {
       itemsList.innerHTML = '<li class="no-items">No items found. Add some!</li>';
     } else {
       items.forEach(item => {
-        const li = document.createElement('li');
-        li.className = 'item';
-        
-        const title = document.createElement('div');
-        title.className = 'item-title';
-        title.textContent = item.name;
-        li.appendChild(title);
-        
-        if (item.description) {
-          const desc = document.createElement('div');
-          desc.className = 'item-desc';
-          desc.textContent = item.description;
-          li.appendChild(desc);
+        if(!item.completed){
+          console.log(item);
+          loadItemDOM(item);
         }
-        
-        if (item.createdAt) {
-          const date = document.createElement('div');
-          date.className = 'item-date';
-          date.textContent = new Date(item.createdAt).toLocaleString();
-          li.appendChild(date);
+      });
+
+      items.forEach(item => {
+        if(item.completed){
+          loadItemDOM(item);
         }
-
-        const button = document.createElement('button');
-        button.className = 'remove-btn';
-        button.addEventListener('click', async(e)=>{
-          console.log("Removing item with id:", item._id);  // Use the 'id' here
-          await removeItem(item._id);
-          await loadItems();
-        });
-
-        li.appendChild(button);
-        itemsList.appendChild(li);
       });
     }
     
@@ -127,6 +180,7 @@ async function addItem(name, description) {
     const newItem = {
       name,
       description,
+      completed: false,
       createdAt: new Date()
     };
     

@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeItem: async(id) =>{
     const result = await ipcRenderer.invoke('remove-item', id);
     return result;
+  },
+  updateItem: async(id, field, value) =>{
+    const result = await ipcRenderer.invoke('update-item', id, field, value);
+    return result;
   }
 });
 

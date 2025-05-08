@@ -20,7 +20,7 @@ body {
 
 #app {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 2fr;
   gap: 1rem;
   margin: 0 auto;
   padding: 20px;
@@ -130,6 +130,8 @@ li.item:last-child {
 }
 
 .item-title {
+  margin-left: 2rem;
+  margin-right: 2rem;
   color: var(--font-color);
   font-weight: bold;
   font-size: 18px;
@@ -137,11 +139,13 @@ li.item:last-child {
 }
 
 .item-desc {
+  padding-left: 2rem;
   color: #666;
   margin-bottom: 5px;
 }
 
 .item-date {
+  padding-left: 2rem;
   font-size: 12px;
   color: #999;
 }
@@ -156,4 +160,26 @@ li.item:last-child {
   right: 0px;
   padding: 16px 16px;
   border: none;
+}
+
+/* Completed animation */
+#toggle{
+  position: absolute;
+  cursor: pointer;
+  accent-color: green;
+  appearance: none;
+  border-radius: 50%;
+  top: 20px;
+  border: 2px solid white;
+  background-color: transparent;
+  padding: 8px 8px;
+}
+
+#toggle:checked{
+  background-color: #4caf50; /* Checked state color */
+}
+
+.completed{
+  opacity: 0.5;
+  text-decoration: line-through;
 }

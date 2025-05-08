@@ -1,5 +1,5 @@
 // Get all required modules
-const { app, BrowserWindow, ipcMain, nativeTheme, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const dotenv = require('dotenv');
 const { MongoClient, ObjectId } = require('mongodb');
@@ -133,3 +133,23 @@ ipcMain.handle('remove-item', async(event, id) =>{
   }
 })
 
+// mark as completed
+ipcMain.handle('update-item', async(event, id, field, value)=>{
+  console.log(`Updating ${id},${field}:${value}`);
+  try{
+    if(!db) {
+      const connected = await connectToMongoDB();
+      if (!connected) return {success: false, error: 'Failed to connect to database'};
+    }
+    const collection = db.collection('items');
+    await collection.updateOne(
+      {_id: new ObjectId(id) },
+      {$set: {[field]: value}}
+    );
+
+    return {success: true, message: "Item successfully marked as complete"};
+  } catch (error){
+    console.error('Error updating item', error);
+    return {success: false, error: error.message};
+  }
+})
