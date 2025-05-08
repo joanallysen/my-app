@@ -45,9 +45,9 @@ function editContent(element){
   element.style.outline = 'none';
 }
 
-async function saveContent(element, id){
+async function saveContent(element, id, field){
   element.contentEditable = false;
-  await window.electronAPI.updateItem(id, 'name', element.textContent.trim());
+  await window.electronAPI.updateItem(id, field, element.textContent.trim());
 }
 
 
@@ -82,7 +82,7 @@ function loadItemDOM(item){
   title.className = 'item-title';
   title.textContent = item.name;
   title.ondblclick = () => editContent(title);
-  title.onblur = () => saveContent(title, item._id);
+  title.onblur = () => saveContent(title, item._id, 'name');
   title.contentEditable = false;
   li.appendChild(title);
   
@@ -90,6 +90,9 @@ function loadItemDOM(item){
     const desc = document.createElement('div');
     desc.className = 'item-desc';
     desc.textContent = item.description;
+    desc.ondblclick = () => editContent(desc);
+    desc.onblur = () => saveContent(desc, item._id, 'description');
+    desc.contentEditable = false;
     li.appendChild(desc);
   }
   
